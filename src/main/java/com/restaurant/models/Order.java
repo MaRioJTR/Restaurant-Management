@@ -1,11 +1,7 @@
 package com.restaurant.models;
 
-import com.restaurant.patterns.state.CancelledState;
-import com.restaurant.patterns.state.DoneState;
 import com.restaurant.patterns.state.NewState;
 import com.restaurant.patterns.state.OrderState;
-import com.restaurant.patterns.state.PaidState;
-import com.restaurant.patterns.state.PlacedState;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,7 +20,7 @@ import java.util.UUID;
  */
 public class Order {
     private final UUID id;
-    private final int tableNumber;
+    private int tableNumber;
     private final List<MenuItem> items;
     private final LocalDateTime createdAt;
     private OrderState state;
@@ -45,6 +41,13 @@ public class Order {
         return tableNumber;
     }
 
+    public void assignTable(int tableNumber) {
+        if (tableNumber < 1 || tableNumber > 10) {
+            throw new IllegalArgumentException("Table number must be between 1 and 10.");
+        }
+        this.tableNumber = tableNumber;
+    }
+
     public List<MenuItem> getItems() {
         return Collections.unmodifiableList(items);
     }
@@ -55,16 +58,6 @@ public class Order {
 
     public OrderStatus getStatus() {
         return state.getStatus();
-    }
-
-    public void setStatus(OrderStatus status) {
-        this.state = switch (Objects.requireNonNull(status, "status")) {
-            case NEW -> new NewState();
-            case PLACED -> new PlacedState();
-            case PAID -> new PaidState();
-            case CANCELLED -> new CancelledState();
-            case DONE -> new DoneState();
-        };
     }
 
     public void changeState(OrderState state) {
@@ -85,6 +78,14 @@ public class Order {
 
     public void done() {
         state.done(this);
+    }
+
+    public void complete() {
+        state.complete(this);
+    }
+
+    public boolean blocksTable() {
+        return state.blocksTable();
     }
 
     public BigDecimal getTotal() {

@@ -6,9 +6,9 @@ import com.restaurant.models.OrderStatus;
 import com.restaurant.patterns.command.CancelOrderCommand;
 import com.restaurant.patterns.command.OrderInvoker;
 import com.restaurant.patterns.command.PlaceOrderCommand;
-import com.restaurant.patterns.observer.KitchenDisplay;
+import com.restaurant.patterns.observer.KitchenDisplayObserver;
 import com.restaurant.patterns.observer.OrderObserver;
-import com.restaurant.patterns.observer.WaiterUI;
+import com.restaurant.patterns.observer.WaiterObserver;
 import com.restaurant.services.OrderService;
 import com.restaurant.utils.AppConstants;
 import com.restaurant.utils.MoneyUtils;
@@ -69,8 +69,8 @@ public class DashboardController implements OrderObserver {
     @FXML
     private TableColumn<Order, Void> actionsColumn;
 
-    private final KitchenDisplay kitchenDisplay = new KitchenDisplay();
-    private final WaiterUI waiterUI = new WaiterUI();
+    private final KitchenDisplayObserver kitchenDisplay = new KitchenDisplayObserver();
+    private final WaiterObserver waiterUI = new WaiterObserver();
     private final RestaurantUiContext uiContext = RestaurantUiContext.getInstance();
     private final OrderService orderService = uiContext.getOrderService();
     private final OrderInvoker orderInvoker = uiContext.getOrderInvoker();

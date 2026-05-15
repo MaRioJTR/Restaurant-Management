@@ -30,6 +30,11 @@ public abstract class MenuItemDecorator implements MenuItem {
     }
 
     @Override
+    public String getPreparationNotes() {
+        return wrappedItem.getPreparationNotes();
+    }
+
+    @Override
     public BigDecimal getPrice() {
         return wrappedItem.getPrice();
     }

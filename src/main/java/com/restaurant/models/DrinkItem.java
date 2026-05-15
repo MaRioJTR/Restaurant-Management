@@ -13,11 +13,17 @@ import java.util.Objects;
 public class DrinkItem implements MenuItem {
     private final String name;
     private final String description;
+    private final String preparationNotes;
     private final BigDecimal price;
 
     public DrinkItem(String name, String description, BigDecimal price) {
+        this(name, description, "Serve chilled.", price);
+    }
+
+    public DrinkItem(String name, String description, String preparationNotes, BigDecimal price) {
         this.name = Objects.requireNonNull(name, "name");
         this.description = Objects.requireNonNull(description, "description");
+        this.preparationNotes = Objects.requireNonNull(preparationNotes, "preparationNotes");
         this.price = Objects.requireNonNull(price, "price");
     }
 
@@ -29,6 +35,11 @@ public class DrinkItem implements MenuItem {
     @Override
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String getPreparationNotes() {
+        return preparationNotes;
     }
 
     @Override

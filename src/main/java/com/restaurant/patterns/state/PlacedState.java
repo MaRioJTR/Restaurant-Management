@@ -24,4 +24,9 @@ public class PlacedState implements OrderState {
     public void cancel(Order order) {
         order.changeState(new CancelledState());
     }
+
+    @Override
+    public boolean blocksTable() {
+        return true;
+    }
 }

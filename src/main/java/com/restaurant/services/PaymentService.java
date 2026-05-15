@@ -3,6 +3,8 @@ package com.restaurant.services;
 import com.restaurant.models.Order;
 import com.restaurant.models.PaymentReceipt;
 import com.restaurant.patterns.strategy.PaymentStrategy;
+import com.restaurant.repositories.FilePaidOrderCsvRepository;
+import com.restaurant.repositories.PaidOrderCsvRepository;
 
 import java.util.Objects;
 
@@ -15,11 +17,15 @@ import java.util.Objects;
  */
 public class PaymentService {
     private PaymentStrategy paymentStrategy;
-    private final PaidOrderCsvExporter csvExporter;
+    private final PaidOrderCsvRepository paidOrderCsvRepository;
 
     public PaymentService(PaymentStrategy paymentStrategy) {
+        this(paymentStrategy, new FilePaidOrderCsvRepository());
+    }
+
+    public PaymentService(PaymentStrategy paymentStrategy, PaidOrderCsvRepository paidOrderCsvRepository) {
         this.paymentStrategy = Objects.requireNonNull(paymentStrategy, "paymentStrategy");
-        this.csvExporter = new PaidOrderCsvExporter();
+        this.paidOrderCsvRepository = Objects.requireNonNull(paidOrderCsvRepository, "paidOrderCsvRepository");
     }
 
     public void setPaymentStrategy(PaymentStrategy paymentStrategy) {
@@ -29,7 +35,7 @@ public class PaymentService {
     public PaymentReceipt processPayment(Order order) {
         order.pay();
         PaymentReceipt receipt = paymentStrategy.pay(order.getId(), order.getTotal());
-        csvExporter.export(receipt);
+        paidOrderCsvRepository.append(receipt);
         return receipt;
     }
 }

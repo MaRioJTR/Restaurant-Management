@@ -16,7 +16,12 @@ public class PaidState implements OrderState {
     }
 
     @Override
-    public void done(Order order) {
+    public void complete(Order order) {
         order.changeState(new DoneState());
+    }
+
+    @Override
+    public boolean blocksTable() {
+        return true;
     }
 }

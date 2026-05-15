@@ -14,6 +14,9 @@ import java.util.UUID;
 public class CashPayment implements PaymentStrategy {
     @Override
     public PaymentReceipt pay(UUID orderId, BigDecimal amount) {
+        if (amount.signum() <= 0) {
+            throw new IllegalArgumentException("Cash payment amount must be positive.");
+        }
         return new PaymentReceipt(orderId, amount, "Cash");
     }
 }

@@ -25,7 +25,15 @@ public interface OrderState {
     }
 
     default void done(Order order) {
-        throw invalid("done");
+        complete(order);
+    }
+
+    default void complete(Order order) {
+        throw invalid("complete");
+    }
+
+    default boolean blocksTable() {
+        return false;
     }
 
     private IllegalStateException invalid(String action) {

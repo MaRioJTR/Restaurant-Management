@@ -1,0 +1,5 @@
+7c222e28-d4d9-45d6-9494-5866b021de9b|table=1|status=NEW|total=12.00
+7c222e28-d4d9-45d6-9494-5866b021de9b|table=1|status=PLACED|total=12.00
+7c222e28-d4d9-45d6-9494-5866b021de9b|table=1|status=DONE|total=12.00
+6f63055f-647b-4036-a2d2-dd08103bf8a3|table=7|status=PLACED|total=12.00
+6f63055f-647b-4036-a2d2-dd08103bf8a3|table=7|status=DONE|total=12.00

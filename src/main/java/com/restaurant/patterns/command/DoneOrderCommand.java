@@ -12,17 +12,8 @@ import java.util.Objects;
  * Pattern: GoF Command concrete command. It preserves the existing command
  * routing for order lifecycle actions.
  */
-public class DoneOrderCommand implements Command {
-    private final OrderService orderService;
-    private final Order order;
-
+public class DoneOrderCommand extends CompleteOrderCommand {
     public DoneOrderCommand(OrderService orderService, Order order) {
-        this.orderService = Objects.requireNonNull(orderService, "orderService");
-        this.order = Objects.requireNonNull(order, "order");
-    }
-
-    @Override
-    public void execute() {
-        orderService.markOrderDone(order);
+        super(orderService, order);
     }
 }

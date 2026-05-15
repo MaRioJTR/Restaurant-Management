@@ -3,7 +3,8 @@ package com.restaurant.controllers;
 import com.restaurant.models.MenuItem;
 import com.restaurant.models.Order;
 import com.restaurant.models.OrderStatus;
-import com.restaurant.models.PaymentReceipt;
+import com.restaurant.patterns.command.PayOrderCommand;
+import com.restaurant.patterns.strategy.PaymentStrategy;
 import com.restaurant.patterns.strategy.CashPayment;
 import com.restaurant.patterns.strategy.CreditCardPayment;
 import com.restaurant.patterns.strategy.WalletPayment;
@@ -103,11 +104,12 @@ public class PaymentController {
         statusLabel.setText("Processing payment...");
         PauseTransition loading = new PauseTransition(Duration.millis(550));
         loading.setOnFinished(event -> {
-            applySelectedStrategy();
-            PaymentReceipt receipt = uiContext.getPaymentService().processPayment(order);
+            PayOrderCommand command = new PayOrderCommand(uiContext.getPaymentService(), selectedStrategy(), order);
+            uiContext.getOrderInvoker().submit(command);
+            uiContext.getOrderInvoker().executeAll();
             uiContext.upsertOrder(order);
-            statusLabel.setText("Paid via " + receipt.getPaymentMethod());
-            totalLabel.setText(MoneyUtils.format(receipt.getAmount()));
+            statusLabel.setText("Paid via " + command.getReceipt().getPaymentMethod());
+            totalLabel.setText(MoneyUtils.format(command.getReceipt().getAmount()));
             confirmPaymentButton.setDisable(false);
         });
         loading.play();
@@ -145,12 +147,12 @@ public class PaymentController {
         statusLabel.setText(order.getStatus().name());
     }
 
-    private void applySelectedStrategy() {
-        switch (selectedMethod) {
-            case "CASH" -> uiContext.getPaymentService().setPaymentStrategy(new CashPayment());
-            case "WALLET" -> uiContext.getPaymentService().setPaymentStrategy(new WalletPayment("HousePay"));
-            default -> uiContext.getPaymentService().setPaymentStrategy(new CreditCardPayment("**** 4242"));
-        }
+    private PaymentStrategy selectedStrategy() {
+        return switch (selectedMethod) {
+            case "CASH" -> new CashPayment();
+            case "WALLET" -> new WalletPayment("HousePay");
+            default -> new CreditCardPayment("4111111111111111");
+        };
     }
 
     private String formatItem(MenuItem item) {

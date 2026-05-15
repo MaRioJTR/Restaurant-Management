@@ -10,20 +10,8 @@ import java.math.BigDecimal;
  * Role: Dynamically augments description and price.
  * Pattern: GoF Decorator concrete decorator.
  */
-public class ExtraSauce extends MenuItemDecorator {
-    private static final BigDecimal EXTRA_COST = new BigDecimal("0.75");
-
+public class ExtraSauce extends ExtraSauceDecorator {
     public ExtraSauce(MenuItem wrappedItem) {
         super(wrappedItem);
-    }
-
-    @Override
-    public String getDescription() {
-        return wrappedItem.getDescription() + ", extra sauce";
-    }
-
-    @Override
-    public BigDecimal getPrice() {
-        return wrappedItem.getPrice().add(EXTRA_COST);
     }
 }

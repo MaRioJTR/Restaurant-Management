@@ -2,7 +2,7 @@ package com.restaurant.controllers;
 
 import com.restaurant.models.MenuItem;
 import com.restaurant.models.Order;
-import com.restaurant.models.OrderStatus;
+import com.restaurant.patterns.command.AssignTableCommand;
 import com.restaurant.patterns.command.PlaceOrderCommand;
 import com.restaurant.utils.AppConstants;
 import com.restaurant.utils.MoneyUtils;
@@ -117,7 +117,8 @@ public class MenuController {
             tableSelectionMessage.setText("Add at least one item before placing the order.");
             return;
         }
-        Order order = new Order(selectedTable, List.copyOf(uiContext.getCartItems()));
+        Order order = new Order(0, List.copyOf(uiContext.getCartItems()));
+        uiContext.getOrderInvoker().submit(new AssignTableCommand(uiContext.getOrderService(), order, selectedTable));
         uiContext.getOrderInvoker().submit(new PlaceOrderCommand(uiContext.getOrderService(), order));
         uiContext.getOrderInvoker().executeAll();
         uiContext.getCartItems().clear();
@@ -148,9 +149,9 @@ public class MenuController {
 
     private void loadMenuRows() {
         uiContext.getMenuService().getFoodItems().forEach(item -> {
-            String category = item.getName().contains("Cake") ? "Desserts" : "Food";
-            menuRows.add(new MenuRow(item, category));
+            menuRows.add(new MenuRow(item, "Food"));
         });
+        uiContext.getMenuService().getDessertItems().forEach(item -> menuRows.add(new MenuRow(item, "Desserts")));
         uiContext.getMenuService().getDrinkItems().forEach(item -> menuRows.add(new MenuRow(item, "Drinks")));
     }
 
@@ -201,9 +202,7 @@ public class MenuController {
     private boolean isTableAvailable(int tableNumber) {
         return uiContext.getOrders().stream()
                 .filter(order -> order.getTableNumber() == tableNumber)
-                .noneMatch(order -> order.getStatus() == OrderStatus.NEW
-                        || order.getStatus() == OrderStatus.PLACED
-                        || order.getStatus() == OrderStatus.PAID);
+                .noneMatch(Order::blocksTable);
     }
 
     private record MenuRow(MenuItem item, String category) {

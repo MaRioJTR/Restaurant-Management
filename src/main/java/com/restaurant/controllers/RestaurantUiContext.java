@@ -4,8 +4,9 @@ import com.restaurant.models.MenuItem;
 import com.restaurant.models.Order;
 import com.restaurant.patterns.command.OrderInvoker;
 import com.restaurant.patterns.observer.OrderObserver;
-import com.restaurant.patterns.singleton.DatabaseManager;
+import com.restaurant.patterns.singleton.AppConfig;
 import com.restaurant.patterns.strategy.CreditCardPayment;
+import com.restaurant.repositories.FileOrderRepository;
 import com.restaurant.services.MenuService;
 import com.restaurant.services.OrderService;
 import com.restaurant.services.PaymentService;
@@ -27,10 +28,11 @@ import java.util.UUID;
 public final class RestaurantUiContext implements OrderObserver {
     private static final RestaurantUiContext INSTANCE = new RestaurantUiContext();
 
-    private final OrderService orderService = new OrderService(DatabaseManager.getInstance());
+    private final AppConfig config = AppConfig.getInstance();
+    private final OrderService orderService = new OrderService(config, new FileOrderRepository(config));
     private final MenuService menuService = new MenuService();
     private final OrderInvoker orderInvoker = new OrderInvoker();
-    private final PaymentService paymentService = new PaymentService(new CreditCardPayment("**** 4242"));
+    private final PaymentService paymentService = new PaymentService(new CreditCardPayment("4111111111111111"));
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
     private final ObservableList<MenuItem> cartItems = FXCollections.observableArrayList();
     private Order selectedOrder;

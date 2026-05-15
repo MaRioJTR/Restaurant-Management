@@ -5,6 +5,7 @@ module com.restaurant {
     exports com.restaurant.app;
     exports com.restaurant.controllers;
     exports com.restaurant.models;
+    exports com.restaurant.repositories;
     exports com.restaurant.services;
     exports com.restaurant.patterns.command;
     exports com.restaurant.patterns.decorator;
