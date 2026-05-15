@@ -2,7 +2,7 @@ package com.restaurant.controllers;
 
 import com.restaurant.models.Order;
 import com.restaurant.models.OrderStatus;
-import com.restaurant.patterns.command.CompleteOrderCommand;
+import com.restaurant.patterns.command.DoneOrderCommand;
 import com.restaurant.patterns.observer.OrderObserver;
 import com.restaurant.utils.AppConstants;
 import com.restaurant.utils.MoneyUtils;
@@ -93,7 +93,7 @@ public class KitchenController implements OrderObserver {
     }
 
     private void markDone(Order order) {
-        uiContext.getOrderInvoker().submit(new CompleteOrderCommand(uiContext.getOrderService(), order));
+        uiContext.getOrderInvoker().submit(new DoneOrderCommand(uiContext.getOrderService(), order));
         uiContext.getOrderInvoker().executeAll();
         uiContext.upsertOrder(order);
         renderCards();

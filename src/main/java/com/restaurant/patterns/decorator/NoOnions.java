@@ -8,8 +8,13 @@ import com.restaurant.models.MenuItem;
  * Role: Dynamically augments description without changing price.
  * Pattern: GoF Decorator concrete decorator.
  */
-public class NoOnions extends NoOnionDecorator {
+public class NoOnions extends MenuItemDecorator {
     public NoOnions(MenuItem wrappedItem) {
         super(wrappedItem);
+    }
+
+    @Override
+    public String getDescription() {
+        return wrappedItem.getDescription() + ", no onions";
     }
 }

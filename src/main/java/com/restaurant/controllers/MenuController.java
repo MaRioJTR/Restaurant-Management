@@ -2,7 +2,6 @@ package com.restaurant.controllers;
 
 import com.restaurant.models.MenuItem;
 import com.restaurant.models.Order;
-import com.restaurant.patterns.command.AssignTableCommand;
 import com.restaurant.patterns.command.PlaceOrderCommand;
 import com.restaurant.utils.AppConstants;
 import com.restaurant.utils.MoneyUtils;
@@ -117,8 +116,7 @@ public class MenuController {
             tableSelectionMessage.setText("Add at least one item before placing the order.");
             return;
         }
-        Order order = new Order(0, List.copyOf(uiContext.getCartItems()));
-        uiContext.getOrderInvoker().submit(new AssignTableCommand(uiContext.getOrderService(), order, selectedTable));
+        Order order = new Order(selectedTable, List.copyOf(uiContext.getCartItems()));
         uiContext.getOrderInvoker().submit(new PlaceOrderCommand(uiContext.getOrderService(), order));
         uiContext.getOrderInvoker().executeAll();
         uiContext.getCartItems().clear();
@@ -149,9 +147,9 @@ public class MenuController {
 
     private void loadMenuRows() {
         uiContext.getMenuService().getFoodItems().forEach(item -> {
-            menuRows.add(new MenuRow(item, "Food"));
+            String category = item.getName().contains("Cake") ? "Desserts" : "Food";
+            menuRows.add(new MenuRow(item, category));
         });
-        uiContext.getMenuService().getDessertItems().forEach(item -> menuRows.add(new MenuRow(item, "Desserts")));
         uiContext.getMenuService().getDrinkItems().forEach(item -> menuRows.add(new MenuRow(item, "Drinks")));
     }
 

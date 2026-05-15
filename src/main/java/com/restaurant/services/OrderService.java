@@ -3,11 +3,18 @@ package com.restaurant.services;
 import com.restaurant.models.Order;
 import com.restaurant.patterns.observer.OrderObserver;
 import com.restaurant.patterns.singleton.AppConfig;
-import com.restaurant.repositories.FileOrderRepository;
-import com.restaurant.repositories.OrderRepository;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -18,7 +25,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * observers when an order state change should be reflected in the UI.
  */
 public class OrderService {
-    private final OrderRepository orderRepository;
+    private final AppConfig config;
+    private final Map<UUID, Order> orderStore = new ConcurrentHashMap<>();
     private final List<OrderObserver> observers = new CopyOnWriteArrayList<>();
 
     public OrderService() {
@@ -26,16 +34,7 @@ public class OrderService {
     }
 
     public OrderService(AppConfig config) {
-        this(config, new FileOrderRepository(config));
-    }
-
-    public OrderService(OrderRepository orderRepository) {
-        this(AppConfig.getInstance(), orderRepository);
-    }
-
-    public OrderService(AppConfig config, OrderRepository orderRepository) {
-        Objects.requireNonNull(config, "config");
-        this.orderRepository = Objects.requireNonNull(orderRepository, "orderRepository");
+        this.config = Objects.requireNonNull(config, "config");
     }
 
     public void addObserver(OrderObserver observer) {
@@ -48,13 +47,13 @@ public class OrderService {
 
     public void placeOrder(Order order) {
         order.place();
-        orderRepository.save(order);
+        saveOrder(order);
         notifyObservers(order);
     }
 
     public void cancelOrder(Order order) {
         order.cancel();
-        orderRepository.save(order);
+        saveOrder(order);
         notifyObservers(order);
     }
 
@@ -64,14 +63,35 @@ public class OrderService {
 
     public void completeOrder(Order order) {
         order.complete();
-        orderRepository.save(order);
+        saveOrder(order);
         notifyObservers(order);
     }
 
-    public void assignTable(Order order, int tableNumber) {
-        order.assignTable(tableNumber);
-        orderRepository.save(order);
-        notifyObservers(order);
+    public Optional<Order> findOrderById(UUID orderId) {
+        return Optional.ofNullable(orderStore.get(orderId));
+    }
+
+    private void saveOrder(Order order) {
+        orderStore.put(order.getId(), order);
+        appendAuditLine(order);
+    }
+
+    private void appendAuditLine(Order order) {
+        String row = order.getId() + "|table=" + order.getTableNumber()
+                + "|status=" + order.getStatus()
+                + "|total=" + order.getTotal()
+                + System.lineSeparator();
+        try {
+            Files.writeString(
+                    Path.of(config.getOrdersFilePath()),
+                    row,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+        } catch (IOException exception) {
+            throw new IllegalStateException("Unable to persist order audit record.", exception);
+        }
     }
 
     private void notifyObservers(Order order) {

@@ -14,7 +14,5 @@ public interface MenuItem {
 
     String getDescription();
 
-    String getPreparationNotes();
-
     BigDecimal getPrice();
 }
